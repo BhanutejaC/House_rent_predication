@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/login', { username, password });
       if (response.data.message === 'Login successful') {
-        setRole(response.data.role);
+        const userRole = response.data.role;
+        setRole(userRole);
+
+        // Redirect based on role
+        if (userRole === 'landlord') {
+          navigate('/landlord/dashboard');
+        } else if (userRole === 'renter') {
+          navigate('/renter/dashboard');
+        } else if (userRole === 'admin') {
+          navigate('/admin/dashboard');
+        }
       }
       console.log("Login successful:", response.data.message);
     } catch (error) {
@@ -19,7 +31,6 @@ function Login() {
       alert(error.response ? error.response.data.message : "Login failed. Please try again.");
     }
   };
-
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-teal-500">
